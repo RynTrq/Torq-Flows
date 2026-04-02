@@ -12,6 +12,7 @@ For each code service:
 - connect the same GitHub repository
 - leave the root directory at the repository root
 - set the Railway config file path in the service settings:
+- leave the manual Railway `Start Command` empty unless you intentionally want to override the service config or Docker default
 
 - `frontend` -> `/railway/frontend.json`
 - `api` -> `/railway/api.json`

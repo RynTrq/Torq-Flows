@@ -2,11 +2,14 @@ import { existsSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 
+const rootServerPath = path.join(process.cwd(), 'server.js');
 const standaloneServerPath = path.join(process.cwd(), '.next', 'standalone', 'server.js');
 
-if (!existsSync(standaloneServerPath)) {
+const serverEntryPoint = existsSync(rootServerPath) ? rootServerPath : standaloneServerPath;
+
+if (!existsSync(serverEntryPoint)) {
   console.error(
-    '[start] Missing .next/standalone/server.js. Build the frontend first with `npm run build`.',
+    '[start] Missing frontend server entrypoint. Build the frontend first with `npm run build`.',
   );
   process.exit(1);
 }
@@ -17,7 +20,7 @@ const env = {
   PORT: process.env.PORT || '4028',
 };
 
-const child = spawn(process.execPath, [standaloneServerPath], {
+const child = spawn(process.execPath, [serverEntryPoint], {
   env,
   stdio: 'inherit',
 });

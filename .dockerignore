@@ -20,5 +20,8 @@ README.md
 docs/
 railway/
 scripts/
+!scripts/
+scripts/*
+!scripts/start-frontend.mjs
 backend/tests/
 docker-compose.production.yml

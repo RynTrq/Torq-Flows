@@ -24,6 +24,7 @@ ENV NEXT_PUBLIC_APP_DESCRIPTION=${NEXT_PUBLIC_APP_DESCRIPTION}
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
 COPY next.config.mjs image-hosts.config.mjs postcss.config.js tailwind.config.js tsconfig.json next-env.d.ts ./
+COPY scripts/start-frontend.mjs ./scripts/start-frontend.mjs
 COPY src ./src
 COPY public ./public
 COPY types ./types
@@ -52,6 +53,7 @@ RUN groupadd --system --gid 1001 nodejs \
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/scripts/start-frontend.mjs ./scripts/start-frontend.mjs
 
 USER nextjs
 
