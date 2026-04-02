@@ -50,10 +50,13 @@ WORKDIR /app
 RUN groupadd --system --gid 1001 nodejs \
   && useradd --system --uid 1001 --gid nodejs nextjs
 
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/scripts/start-frontend.mjs ./scripts/start-frontend.mjs
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/start-frontend.mjs ./scripts/start-frontend.mjs
+
+RUN mkdir -p /app/.next/cache /app/scripts \
+  && chown -R nextjs:nodejs /app
 
 USER nextjs
 
