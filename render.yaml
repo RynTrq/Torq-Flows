@@ -1,0 +1,95 @@
+services:
+  - type: web
+    runtime: docker
+    name: torq-flows-frontend
+    plan: starter
+    region: singapore
+    dockerfilePath: ./Dockerfile.frontend
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: HOSTNAME
+        value: 0.0.0.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: torq-flows-db
+          property: connectionString
+      - key: DATABASE_SSL
+        value: "true"
+      - key: BACKEND_API_URL
+        fromService:
+          name: torq-flows-api
+          type: pserv
+          property: hostport
+      - key: NEXT_PUBLIC_APP_NAME
+        value: Torq Flows
+      - key: NEXT_PUBLIC_APP_DESCRIPTION
+        value: Design, run, and monitor visual workflow automations with a durable execution runtime.
+
+  - type: pserv
+    runtime: docker
+    name: torq-flows-api
+    plan: starter
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: torq-flows-db
+          property: connectionString
+      - key: DATABASE_SSL
+        value: "true"
+      - key: TEMPORAL_ADDRESS
+        sync: false
+      - key: TEMPORAL_NAMESPACE
+        sync: false
+      - key: TEMPORAL_API_KEY
+        sync: false
+      - key: TEMPORAL_TASK_QUEUE
+        value: torq-flows-workflows
+      - key: API_REQUEST_TIMEOUT_SECONDS
+        value: "30"
+
+  - type: worker
+    runtime: docker
+    name: torq-flows-worker
+    plan: starter
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    dockerCommand: python -m backend.app.worker
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: torq-flows-db
+          property: connectionString
+      - key: DATABASE_SSL
+        value: "true"
+      - key: TEMPORAL_ADDRESS
+        sync: false
+      - key: TEMPORAL_NAMESPACE
+        sync: false
+      - key: TEMPORAL_API_KEY
+        sync: false
+      - key: TEMPORAL_TASK_QUEUE
+        value: torq-flows-workflows
+      - key: API_REQUEST_TIMEOUT_SECONDS
+        value: "30"
+
+databases:
+  - name: torq-flows-db
+    plan: basic-1gb
+    region: singapore
+    databaseName: torq_flows
+    ipAllowList: []
