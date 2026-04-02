@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ user });
     return applySessionCookie(response, session.token, session.expiresAt);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Login failed.';
-    return NextResponse.json({ error: message }, { status: 400 });
+    console.error('Login failed.', error);
+    return NextResponse.json({ error: 'Login failed.' }, { status: 500 });
   }
 }

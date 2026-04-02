@@ -11,6 +11,20 @@ import { hashPassword, verifyPassword } from './passwords';
 const SESSION_COOKIE_NAME = 'torq_flows_session';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 
+export class AuthValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AuthValidationError';
+  }
+}
+
+export class AuthConflictError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AuthConflictError';
+  }
+}
+
 interface UserRow {
   id: string;
   name: string;
@@ -49,15 +63,15 @@ function validateEmail(email: string) {
 
 function assertValidCredentials(name: string, email: string, password: string) {
   if (!name.trim()) {
-    throw new Error('Name is required.');
+    throw new AuthValidationError('Name is required.');
   }
 
   if (!validateEmail(email)) {
-    throw new Error('Please enter a valid email address.');
+    throw new AuthValidationError('Please enter a valid email address.');
   }
 
   if (password.length < 8) {
-    throw new Error('Password must be at least 8 characters long.');
+    throw new AuthValidationError('Password must be at least 8 characters long.');
   }
 }
 
@@ -78,7 +92,7 @@ export async function registerUser({
   ]);
 
   if (existingUser.rowCount) {
-    throw new Error('An account with that email already exists.');
+    throw new AuthConflictError('An account with that email already exists.');
   }
 
   const user: AuthUser = {

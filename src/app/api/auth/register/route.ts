@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server';
-import { applySessionCookie, createSession, registerUser } from '@/lib/server/auth';
+import {
+  applySessionCookie,
+  AuthConflictError,
+  AuthValidationError,
+  createSession,
+  registerUser,
+} from '@/lib/server/auth';
 
 export const runtime = 'nodejs';
 
@@ -16,7 +22,15 @@ export async function POST(request: Request) {
 
     return applySessionCookie(response, session.token, session.expiresAt);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Registration failed.';
-    return NextResponse.json({ error: message }, { status: 400 });
+    if (error instanceof AuthValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 422 });
+    }
+
+    if (error instanceof AuthConflictError) {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
+
+    console.error('Registration failed.', error);
+    return NextResponse.json({ error: 'Registration failed.' }, { status: 500 });
   }
 }
