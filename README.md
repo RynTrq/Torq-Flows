@@ -81,8 +81,6 @@ Supabase note:
 
 For container deployment, use [`.env.production.example`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/.env.production.example).
 
-For managed deployment on Render, the repo now includes [render.yaml](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/render.yaml).
-
 ## Install
 
 Frontend:
@@ -175,34 +173,37 @@ Operational notes:
 - The backend and worker containers share one image, which keeps the API and Temporal worker on the same application version.
 - The example env files intentionally include only the baseline variables for the default API-key setup. Add `TEMPORAL_TLS_*` variables only if you switch to mTLS.
 
-## Render Deployment
+## Railway Deployment
 
-The easiest hosted setup for this repo is:
+The clean Railway setup for this repo is:
 
-- Render Postgres for the database
-- one Render web service for the Next.js frontend
-- one Render private service for the FastAPI backend
-- one Render background worker for the Temporal worker
+- one Railway web service for the Next.js frontend
+- one Railway web service for the FastAPI backend API
+- one Railway worker service for the Temporal worker
+- one Railway PostgreSQL service
 - Temporal Cloud or another existing Temporal deployment for orchestration
 
-Use [render.yaml](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/render.yaml) as the starting point.
+Use the Railway service config files in [`railway/README.md`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/railway/README.md):
+
+- [`railway/frontend.json`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/railway/frontend.json)
+- [`railway/api.json`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/railway/api.json)
+- [`railway/worker.json`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/railway/worker.json)
 
 Important notes:
 
-- The backend and worker now support Temporal Cloud credentials through `TEMPORAL_API_KEY` and optional mTLS environment variables.
-- The frontend now accepts a Render private-network `host:port` value for `BACKEND_API_URL`, so the Blueprint can wire the frontend to the private backend automatically.
-- `NEXT_PUBLIC_SITE_URL` can be omitted on first Render deploy because [Dockerfile.frontend](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/Dockerfile.frontend) falls back to `https://$RENDER_EXTERNAL_HOSTNAME` during the build on Render web services.
+- The backend and worker support Temporal Cloud credentials through `TEMPORAL_API_KEY`.
+- The frontend Docker build now understands Railway's `RAILWAY_PUBLIC_DOMAIN` build variable, so `NEXT_PUBLIC_SITE_URL` can be derived automatically after a Railway domain exists.
+- Railway service variables are available during Docker builds, but Dockerfiles must declare them with `ARG` before use.
 
-Render flow:
+Railway flow:
 
 1. Push the repo to GitHub.
-2. In Render, create a new Blueprint and point it at the repo.
-3. Review the resources from `render.yaml`.
-4. Enter values for `TEMPORAL_ADDRESS`, `TEMPORAL_NAMESPACE`, and `TEMPORAL_API_KEY` when Render prompts for them.
-5. Apply the Blueprint and wait for the database, API, worker, and frontend to finish deploying.
-6. Open the frontend `onrender.com` URL and confirm `/api/health` returns `status: ok`.
-
-If you later add a custom domain, set `NEXT_PUBLIC_SITE_URL` on the frontend service to that exact `https://` URL and trigger a redeploy so the built metadata matches the final hostname.
+2. Create a Railway project and add a PostgreSQL service.
+3. Add `frontend`, `api`, and `worker` services from the same GitHub repo.
+4. Set each service's Railway config file path as documented in [`railway/README.md`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/railway/README.md).
+5. Generate public domains for the `frontend` and `api` services.
+6. Add the required service variables, especially `BACKEND_API_URL=https://${{api.RAILWAY_PUBLIC_DOMAIN}}` on the frontend service.
+7. Deploy the staged changes and confirm the frontend `/api/health` and backend `/health/ready` endpoints report healthy.
 
 ## Helpful Endpoints
 

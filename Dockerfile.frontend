@@ -15,6 +15,7 @@ WORKDIR /app
 ARG NEXT_PUBLIC_APP_NAME="Torq Flows"
 ARG NEXT_PUBLIC_APP_DESCRIPTION="Design, run, and monitor visual workflow automations with a durable execution runtime."
 ARG NEXT_PUBLIC_SITE_URL=""
+ARG RAILWAY_PUBLIC_DOMAIN=""
 ARG RENDER_EXTERNAL_HOSTNAME=""
 
 ENV NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME}
@@ -27,7 +28,9 @@ COPY src ./src
 COPY public ./public
 COPY types ./types
 
-RUN if [ -z "$NEXT_PUBLIC_SITE_URL" ] && [ -n "$RENDER_EXTERNAL_HOSTNAME" ]; then \
+RUN if [ -z "$NEXT_PUBLIC_SITE_URL" ] && [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then \
+      export NEXT_PUBLIC_SITE_URL="https://$RAILWAY_PUBLIC_DOMAIN"; \
+    elif [ -z "$NEXT_PUBLIC_SITE_URL" ] && [ -n "$RENDER_EXTERNAL_HOSTNAME" ]; then \
       export NEXT_PUBLIC_SITE_URL="https://$RENDER_EXTERNAL_HOSTNAME"; \
     elif [ -z "$NEXT_PUBLIC_SITE_URL" ]; then \
       export NEXT_PUBLIC_SITE_URL="http://localhost:3000"; \

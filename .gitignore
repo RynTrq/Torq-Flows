@@ -25,6 +25,7 @@ Thumbs.db
 
 # Vercel deployment
 .vercel/
+.railway/
 
 # Optional: if using TypeScript
 *.tsbuildinfo

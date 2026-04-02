@@ -10,6 +10,7 @@ tmp
 *.pyc
 __pycache__/
 .git
+.railway/
 .gitignore
 .eslintrc.json
 .prettierignore
@@ -17,7 +18,7 @@ __pycache__/
 *.tsbuildinfo
 README.md
 docs/
+railway/
 scripts/
 backend/tests/
 docker-compose.production.yml
-render.yaml
