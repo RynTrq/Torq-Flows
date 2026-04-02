@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ssl
 from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator, Iterable, Optional
 
@@ -86,10 +87,16 @@ def _get_ssl_config() -> Any:
     if settings.database_ssl == "false":
         return False
     if settings.database_ssl == "true":
-        return True
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        return ssl_context
     if "localhost" in database_url or "127.0.0.1" in database_url:
         return False
-    return True
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    return ssl_context
 
 
 async def get_pool() -> asyncpg.Pool:

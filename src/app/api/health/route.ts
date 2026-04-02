@@ -5,7 +5,19 @@ import { getBackendBaseUrl } from '@/lib/server/env';
 export const runtime = 'nodejs';
 
 function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Unknown error';
+  if (error instanceof Error && error.message.trim()) {
+    return error.message;
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const code = 'code' in error && typeof error.code === 'string' ? error.code : '';
+    const name = 'name' in error && typeof error.name === 'string' ? error.name : '';
+    const detail = 'detail' in error && typeof error.detail === 'string' ? error.detail : '';
+
+    return [name, code, detail].filter(Boolean).join(': ') || 'Unknown error';
+  }
+
+  return 'Unknown error';
 }
 
 export async function GET() {
