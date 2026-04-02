@@ -202,12 +202,13 @@ Railway flow:
 3. Add `frontend`, `api`, and `worker` services from the same GitHub repo.
 4. Set each service's Railway config file path as documented in [`railway/README.md`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/railway/README.md).
 5. Generate public domains for the `frontend` and `api` services.
-6. Add the required service variables, especially `BACKEND_API_URL=https://${{api.RAILWAY_PUBLIC_DOMAIN}}` on the frontend service.
-7. Deploy the staged changes and confirm the frontend `/api/health` and backend `/health/ready` endpoints report healthy.
+6. Add the required service variables, especially `DATABASE_URL=${{Postgres.DATABASE_URL}}`, `DATABASE_SSL=true`, and `BACKEND_API_URL=https://${{api.RAILWAY_PUBLIC_DOMAIN}}` on the frontend service.
+7. Deploy the staged changes and confirm the frontend `/api/health/live` endpoint, the frontend `/api/health` diagnostic endpoint, and the backend `/health/ready` endpoint report healthy.
 
 ## Helpful Endpoints
 
 - `GET /api/health`
+- `GET /api/health/live`
 - `GET /health/live`
 - `GET /health/ready`
 - `GET /api/workflows`

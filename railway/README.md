@@ -27,6 +27,8 @@ Set these service variables.
 ## frontend
 
 ```env
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+DATABASE_SSL=true
 BACKEND_API_URL=https://${{api.RAILWAY_PUBLIC_DOMAIN}}
 ```
 
@@ -68,6 +70,7 @@ API_REQUEST_TIMEOUT_SECONDS=30
 
 After all services are configured, deploy the staged changes and verify:
 
-- frontend health: `/api/health`
+- frontend liveness: `/api/health/live`
+- frontend diagnostics: `/api/health`
 - backend health: `/health/ready`
 - webhook/public API base: the generated public domain on the `api` service

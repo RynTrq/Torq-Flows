@@ -6,13 +6,13 @@
     "dev": "node scripts/dev-stack.mjs",
     "frontend:dev": "next dev -p 4028",
     "build": "next build",
-    "start": "next start -H 0.0.0.0 -p 4028",
+    "start": "node scripts/start-frontend.mjs",
     "backend:api": "./.venv/bin/python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload",
     "backend:worker": "./.venv/bin/python -m backend.app.worker",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,md,json}\"",
-    "serve": "next start",
+    "serve": "node scripts/start-frontend.mjs",
     "type-check": "next build --experimental-build-mode compile --no-lint && tsc --noEmit --incremental false"
   },
   "dependencies": {
