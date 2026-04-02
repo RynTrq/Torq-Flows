@@ -25,6 +25,58 @@ export class AuthConflictError extends Error {
   }
 }
 
+interface ErrorWithCode {
+  code?: string;
+  message?: string;
+}
+
+function getErrorCode(error: unknown) {
+  return typeof error === 'object' && error !== null && 'code' in error
+    ? (error as ErrorWithCode).code
+    : undefined;
+}
+
+export function isAuthConflict(error: unknown) {
+  return error instanceof AuthConflictError || getErrorCode(error) === '23505';
+}
+
+export function isAuthInfrastructureError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const code = getErrorCode(error);
+
+  if (
+    code &&
+    [
+      '42501',
+      '53300',
+      '57P03',
+      '08001',
+      '08006',
+      '28P01',
+      '3D000',
+      'ECONNREFUSED',
+      'ECONNRESET',
+      'ENOTFOUND',
+      'ETIMEDOUT',
+      'EAI_AGAIN',
+    ].includes(code)
+  ) {
+    return true;
+  }
+
+  return (
+    error.message.includes('DATABASE_URL is required') ||
+    error.message.includes('password authentication failed') ||
+    error.message.includes('does not exist') ||
+    error.message.includes('permission denied') ||
+    error.message.includes('connect ECONNREFUSED') ||
+    error.message.includes('getaddrinfo ENOTFOUND')
+  );
+}
+
 interface UserRow {
   id: string;
   name: string;

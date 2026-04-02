@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
-import { applySessionCookie, authenticateUser, createSession } from '@/lib/server/auth';
+import {
+  applySessionCookie,
+  authenticateUser,
+  createSession,
+  isAuthInfrastructureError,
+} from '@/lib/server/auth';
 
 export const runtime = 'nodejs';
 
@@ -19,6 +24,14 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ user });
     return applySessionCookie(response, session.token, session.expiresAt);
   } catch (error) {
+    if (isAuthInfrastructureError(error)) {
+      console.error('Login failed because the authentication database is unavailable.', error);
+      return NextResponse.json(
+        { error: 'Authentication service is temporarily unavailable. Please try again shortly.' },
+        { status: 503 }
+      );
+    }
+
     console.error('Login failed.', error);
     return NextResponse.json({ error: 'Login failed.' }, { status: 500 });
   }

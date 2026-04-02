@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import {
   applySessionCookie,
-  AuthConflictError,
   AuthValidationError,
   createSession,
+  isAuthConflict,
+  isAuthInfrastructureError,
   registerUser,
 } from '@/lib/server/auth';
 
@@ -26,8 +27,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 422 });
     }
 
-    if (error instanceof AuthConflictError) {
-      return NextResponse.json({ error: error.message }, { status: 409 });
+    if (isAuthConflict(error)) {
+      return NextResponse.json(
+        { error: 'An account with that email already exists.' },
+        { status: 409 }
+      );
+    }
+
+    if (isAuthInfrastructureError(error)) {
+      console.error(
+        'Registration failed because the authentication database is unavailable.',
+        error
+      );
+      return NextResponse.json(
+        { error: 'Authentication service is temporarily unavailable. Please try again shortly.' },
+        { status: 503 }
+      );
     }
 
     console.error('Registration failed.', error);
