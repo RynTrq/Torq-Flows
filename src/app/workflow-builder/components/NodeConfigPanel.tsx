@@ -391,7 +391,7 @@ function DecisionConfig({
       <div className="flex items-center justify-between">
         <FieldLabel
           label="Conditions"
-          hint="Groups are combined with OR. Conditions within a group use AND."
+          hint='Groups are combined with OR. Conditions within a group use AND. Use payload paths like input.amount or literals like 1 or "approved".'
         />
       </div>
 
@@ -424,7 +424,7 @@ function DecisionConfig({
                     <input
                       value={cond.field}
                       onChange={(e) => updateCondition(group.id, cond.id, 'field', e.target.value)}
-                      placeholder="$.field.path"
+                      placeholder='input.amount or 1 or "approved"'
                       className="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-[11px] font-mono text-zinc-200 focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                     <select

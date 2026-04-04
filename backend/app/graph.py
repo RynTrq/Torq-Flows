@@ -100,6 +100,10 @@ def get_condition_value(current_payload: Any, original_input: Any, field: str) -
     if not normalized_field:
         return current_payload
 
+    literal_match, literal_value = _parse_condition_literal(normalized_field)
+    if literal_match:
+        return literal_value
+
     if normalized_field.startswith("input."):
         return get_value_from_path(original_input, normalized_field.replace("input.", "", 1))
 
@@ -117,6 +121,8 @@ def coerce_expected_value(value: str) -> Any:
 
     if trimmed == "":
         return ""
+    if len(trimmed) >= 2 and trimmed[0] == trimmed[-1] == "'":
+        return trimmed[1:-1]
     if trimmed == "true":
         return True
     if trimmed == "false":
@@ -139,6 +145,21 @@ def coerce_expected_value(value: str) -> Any:
         return json.loads(trimmed)
     except json.JSONDecodeError:
         return trimmed
+
+
+def _parse_condition_literal(value: str) -> Tuple[bool, Any]:
+    trimmed = value.strip()
+
+    if trimmed == "":
+        return False, None
+
+    if len(trimmed) >= 2 and trimmed[0] == trimmed[-1] == "'":
+        return True, trimmed[1:-1]
+
+    try:
+        return True, json.loads(trimmed)
+    except json.JSONDecodeError:
+        return False, None
 
 
 def _coerce_number(value: Any) -> Optional[float]:
@@ -243,14 +264,17 @@ def evaluate_condition_groups(
         if not conditions:
             continue
 
+        valid_conditions = [condition for condition in conditions if isinstance(condition, dict)]
+        if not valid_conditions:
+            continue
+
         if all(
             compare_values(
                 get_condition_value(current_payload, original_input, str(condition.get("field", ""))),
                 str(condition.get("operator", "eq")),
                 str(condition.get("value", "")),
             )
-            for condition in conditions
-            if isinstance(condition, dict)
+            for condition in valid_conditions
         ):
             return True
 
@@ -479,7 +503,7 @@ def validate_workflow_graph(
                                     nodeId=node.id,
                                     severity="error",
                                     code="decision_missing_field",
-                                    message='Decision conditions must include a field path.',
+                                    message='Decision conditions must include a field path or literal value.',
                                 )
                             )
                         if operator not in SUPPORTED_OPERATORS:

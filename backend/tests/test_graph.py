@@ -188,6 +188,32 @@ class WorkflowGraphTests(unittest.TestCase):
             evaluate_condition_groups(condition_groups, current_payload, original_input)
         )
 
+    def test_decision_helpers_support_literal_left_operands(self):
+        numeric_literal_group = [
+            {
+                "id": "group-1",
+                "conditions": [
+                    {"field": "1", "operator": "eq", "value": "1"},
+                ],
+            }
+        ]
+        string_literal_group = [
+            {
+                "id": "group-2",
+                "conditions": [
+                    {"field": '"approved"', "operator": "eq", "value": "approved"},
+                ],
+            }
+        ]
+
+        self.assertTrue(evaluate_condition_groups(numeric_literal_group, {}, {}))
+        self.assertTrue(evaluate_condition_groups(string_literal_group, {}, {}))
+
+    def test_decision_helpers_ignore_invalid_conditions_at_runtime(self):
+        condition_groups = [{"id": "group-1", "conditions": ["invalid-condition"]}]
+
+        self.assertFalse(evaluate_condition_groups(condition_groups, {}, {}))
+
 
 if __name__ == "__main__":
     unittest.main()

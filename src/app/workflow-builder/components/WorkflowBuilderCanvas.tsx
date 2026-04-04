@@ -1120,7 +1120,7 @@ export default function WorkflowBuilderCanvas({ initialWorkflow }: WorkflowBuild
             if (!field) {
               errors.push({
                 nodeId: node.id,
-                message: `Decision "${node.data.label}": each condition needs a field path`,
+                message: `Decision "${node.data.label}": each condition needs a field path or literal value`,
                 severity: 'error',
               });
             }
