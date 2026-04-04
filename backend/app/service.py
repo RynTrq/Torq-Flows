@@ -760,7 +760,7 @@ async def start_run_from_webhook(workflow_id: str, input_payload: Any) -> Workfl
           definition_json,
           validation_errors_json
         FROM workflows
-        WHERE id = $1::UUID
+        WHERE webhook_path = $1
           AND trigger_type = 'webhook'
           AND status = 'active'
         LIMIT 1

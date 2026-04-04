@@ -5,15 +5,22 @@ export const runtime = 'nodejs';
 
 async function readPayload(request: Request) {
   const contentType = request.headers.get('content-type') ?? '';
-
-  if (contentType.includes('application/json')) {
-    return request.json();
-  }
-
   const rawBody = await request.text();
 
   if (!rawBody.trim()) {
     return {};
+  }
+
+  if (contentType.includes('application/x-www-form-urlencoded')) {
+    return Object.fromEntries(new URLSearchParams(rawBody).entries());
+  }
+
+  if (contentType.includes('application/json')) {
+    try {
+      return JSON.parse(rawBody);
+    } catch {
+      throw new Error('Invalid JSON payload.');
+    }
   }
 
   try {

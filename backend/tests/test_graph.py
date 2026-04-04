@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import unittest
+from importlib import import_module
+from types import SimpleNamespace
 
 from backend.app.graph import (
     WorkflowValidationException,
@@ -213,6 +215,26 @@ class WorkflowGraphTests(unittest.TestCase):
         condition_groups = [{"id": "group-1", "conditions": ["invalid-condition"]}]
 
         self.assertFalse(evaluate_condition_groups(condition_groups, {}, {}))
+
+
+class WebhookExecutionTests(unittest.IsolatedAsyncioTestCase):
+    async def test_start_run_from_webhook_looks_up_by_webhook_path(self):
+        import sys
+        from unittest.mock import AsyncMock, patch
+
+        fetchrow_mock = AsyncMock(return_value=None)
+        asyncpg_stub = SimpleNamespace(Pool=object, Record=object, create_pool=AsyncMock())
+
+        with patch.dict(sys.modules, {"asyncpg": asyncpg_stub}):
+            service = import_module("backend.app.service")
+
+        with patch.object(service, "fetchrow", fetchrow_mock):
+            with self.assertRaises(service.NotFoundError):
+                await service.start_run_from_webhook('not-a-uuid-path', {})
+
+        query, webhook_path = fetchrow_mock.await_args.args
+        self.assertIn('WHERE webhook_path = $1', query)
+        self.assertEqual(webhook_path, 'not-a-uuid-path')
 
 
 if __name__ == "__main__":
