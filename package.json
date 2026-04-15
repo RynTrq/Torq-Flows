@@ -1,0 +1,46 @@
+{
+  "name": "torq-flows",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev-stack.mjs",
+    "frontend:dev": "next dev -p 4028",
+    "build": "next build",
+    "start": "node scripts/start-frontend.mjs",
+    "backend:api": "./.venv/bin/python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload",
+    "backend:worker": "./.venv/bin/python -m backend.app.worker",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,md,json}\"",
+    "serve": "node scripts/start-frontend.mjs",
+    "type-check": "next build --experimental-build-mode compile --no-lint && tsc --noEmit --incremental false"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "lucide-react": "^1.7.0",
+    "next": "15.1.11",
+    "pg": "^8.20.0",
+    "react": "19.0.3",
+    "react-dom": "19.0.3",
+    "reactflow": "^11.11.4",
+    "recharts": "^2.15.2",
+    "sonner": "^2.0.7"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "19.0.3",
+    "@types/react-dom": "19.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.29.0",
+    "autoprefixer": "10.4.2",
+    "eslint": "^9",
+    "eslint-config-next": "^15.2.4",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "postcss": "8.4.8",
+    "prettier": "^3.5.3",
+    "tailwindcss": "3.4.6",
+    "typescript": "^5"
+  }
+}

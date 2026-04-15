@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 160 84% 39%;
+    --primary-foreground: 355 7% 97%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 64%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 160 84% 39%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-zinc-950 text-zinc-100;
+    font-family: 'Geist', sans-serif;
+  }
+}
+
+.font-mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* React Flow overrides */
+.react-flow__background {
+  background-color: #09090b !important;
+}
+
+.react-flow__controls {
+  background: #18181b !important;
+  border: 1px solid #27272a !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background: #18181b !important;
+  border-bottom: 1px solid #27272a !important;
+  color: #a1a1aa !important;
+}
+
+.react-flow__controls-button:hover {
+  background: #27272a !important;
+}
+
+.react-flow__minimap {
+  background: #18181b !important;
+  border: 1px solid #27272a !important;
+  border-radius: 8px !important;
+}
+
+.react-flow__edge-path {
+  stroke: #4b5563 !important;
+  stroke-width: 2 !important;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #34d399 !important;
+}
+
+.react-flow__handle {
+  width: 10px !important;
+  height: 10px !important;
+  border: 2px solid #27272a !important;
+}
+
+.react-flow__node.selected > div {
+  outline: 2px solid #34d399 !important;
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #18181b;
+}
+::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+
+/* Animate pulse skeleton */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Node entrance animation */
+@keyframes nodeEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.node-enter {
+  animation: nodeEnter 150ms ease-out;
+}
+
+/* Log row expand animation */
+@keyframes expandDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.expand-down {
+  animation: expandDown 200ms ease-out;
+  overflow: hidden;
+}

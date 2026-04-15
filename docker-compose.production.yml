@@ -1,0 +1,111 @@
+x-backend-build: &backend-build
+  context: .
+  dockerfile: backend/Dockerfile
+
+x-backend-env: &backend-env
+  APP_ENV: ${APP_ENV:-production}
+  DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+  DATABASE_SSL: ${DATABASE_SSL:-false}
+  TEMPORAL_ADDRESS: ${TEMPORAL_ADDRESS}
+  TEMPORAL_NAMESPACE: ${TEMPORAL_NAMESPACE:-default}
+  TEMPORAL_API_KEY: ${TEMPORAL_API_KEY:-}
+  TEMPORAL_TLS_SERVER_NAME: ${TEMPORAL_TLS_SERVER_NAME:-}
+  TEMPORAL_TLS_SERVER_ROOT_CA_CERT_DATA: ${TEMPORAL_TLS_SERVER_ROOT_CA_CERT_DATA:-}
+  TEMPORAL_TLS_SERVER_ROOT_CA_CERT_PATH: ${TEMPORAL_TLS_SERVER_ROOT_CA_CERT_PATH:-}
+  TEMPORAL_TLS_CLIENT_CERT_DATA: ${TEMPORAL_TLS_CLIENT_CERT_DATA:-}
+  TEMPORAL_TLS_CLIENT_CERT_PATH: ${TEMPORAL_TLS_CLIENT_CERT_PATH:-}
+  TEMPORAL_TLS_CLIENT_KEY_DATA: ${TEMPORAL_TLS_CLIENT_KEY_DATA:-}
+  TEMPORAL_TLS_CLIENT_KEY_PATH: ${TEMPORAL_TLS_CLIENT_KEY_PATH:-}
+  TEMPORAL_TASK_QUEUE: ${TEMPORAL_TASK_QUEUE:-torq-flows-workflows}
+  API_REQUEST_TIMEOUT_SECONDS: ${API_REQUEST_TIMEOUT_SECONDS:-30}
+
+services:
+  postgres:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend-api:
+    build: *backend-build
+    image: torq-flows-backend:latest
+    restart: unless-stopped
+    environment: *backend-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${BACKEND_PUBLIC_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-m", "backend.app.healthcheck", "api"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  backend-worker:
+    build: *backend-build
+    image: torq-flows-backend:latest
+    restart: unless-stopped
+    command: ["python", "-m", "backend.app.worker"]
+    environment: *backend-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-m", "backend.app.healthcheck", "worker"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-Torq Flows}
+        NEXT_PUBLIC_APP_DESCRIPTION: ${NEXT_PUBLIC_APP_DESCRIPTION:-Design, run, and monitor visual workflow automations with a durable execution runtime.}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    image: torq-flows-frontend:latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DATABASE_SSL: ${DATABASE_SSL:-false}
+      BACKEND_API_URL: ${BACKEND_API_URL:-http://backend-api:8000}
+      PORT: 4028
+      HOSTNAME: 0.0.0.0
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend-api:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-3000}:4028"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "const port = process.env.PORT || '4028'; const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 5000); fetch('http://127.0.0.1:' + port + '/api/health', { signal: controller.signal }).then((response) => { clearTimeout(timeout); process.exit(response.ok ? 0 : 1); }).catch(() => { clearTimeout(timeout); process.exit(1); });",
+        ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres_data:
