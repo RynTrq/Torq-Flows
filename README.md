@@ -55,7 +55,7 @@ When an action node fails:
 
 ## Environment
 
-Use [`.env.example`](.env.example) as the local development template.
+Create a local `.env` file using the configuration below. This repository does not currently include an environment template.
 
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/torqFlows
@@ -79,7 +79,7 @@ Supabase note:
 - Use your Supabase Postgres connection string as `DATABASE_URL`.
 - No Supabase client SDK is required for this assignment.
 
-For container deployment, use [`.env.production.example`](.env.production.example).
+For container deployment, create `.env.production` with the variables consumed by [docker-compose.production.yml](docker-compose.production.yml). Configure a strong `POSTGRES_PASSWORD`, your PostgreSQL database/user, and the required Temporal connection values.
 
 ## Install
 
@@ -151,7 +151,7 @@ Important production assumption:
 
 Deployment steps:
 
-1. Copy `.env.production.example` to `.env.production` and replace every placeholder value.
+1. Create `.env.production` and configure the database credentials and service variables referenced by `docker-compose.production.yml`.
 2. Set `TEMPORAL_ADDRESS`, `TEMPORAL_NAMESPACE`, and `TEMPORAL_API_KEY` to your real Temporal Cloud values, and keep `BACKEND_API_URL=http://backend-api:8000` for the internal frontend-to-backend hop.
 3. Build and start the stack:
 
@@ -171,7 +171,7 @@ Operational notes:
 - The frontend image bakes in `NEXT_PUBLIC_*` values at build time, so changing branding or `NEXT_PUBLIC_SITE_URL` requires rebuilding the frontend image.
 - The frontend depends on the backend readiness endpoint, and the backend depends on both PostgreSQL and Temporal connectivity before it reports healthy.
 - The backend and worker containers share one image, which keeps the API and Temporal worker on the same application version.
-- The example env files intentionally include only the baseline variables for the default API-key setup. Add `TEMPORAL_TLS_*` variables only if you switch to mTLS.
+- Configure only the credentials your Temporal deployment requires. The compose file supports `TEMPORAL_TLS_*` variables for mTLS.
 
 ## Railway Deployment
 
@@ -229,12 +229,6 @@ Railway flow:
 
 ## Architecture
 
-See [docs/architecture.md](docs/architecture.md).
+The Next.js interface and authenticated API proxy are under [`src/`](src/). The FastAPI API, workflow validation, Temporal activities, and worker implementation are under [`backend/`](backend/). See [`railway/README.md`](railway/README.md) for service boundaries and deployment configuration.
 
-## Requirement Mapping
-
-See [docs/spec-checklist.md](docs/spec-checklist.md) for a requirement-by-requirement implementation checklist.
-
-## Walkthrough Video Script
-
-See [docs/walkthrough-script.md](docs/walkthrough-script.md) for a concise recording script that covers the required demo flow.
+The repository includes backend checks in [`backend/tests/`](backend/tests/). The earlier architecture, requirement checklist, and walkthrough files referenced here are not present in this source tree; they are no longer linked as available documentation.
