@@ -55,7 +55,7 @@ When an action node fails:
 
 ## Environment
 
-Use [`.env.example`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/.env.example) as the local development template.
+Use [`.env.example`](.env.example) as the local development template.
 
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/torqFlows
@@ -79,7 +79,7 @@ Supabase note:
 - Use your Supabase Postgres connection string as `DATABASE_URL`.
 - No Supabase client SDK is required for this assignment.
 
-For container deployment, use [`.env.production.example`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/.env.production.example).
+For container deployment, use [`.env.production.example`](.env.production.example).
 
 ## Install
 
@@ -139,9 +139,9 @@ Authentication:
 
 The repo now includes a production-oriented deployment baseline:
 
-- [Dockerfile.frontend](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/Dockerfile.frontend) builds the Next.js app in standalone mode.
-- [backend/Dockerfile](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/backend/Dockerfile) builds a reusable FastAPI/worker image.
-- [docker-compose.production.yml](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/docker-compose.production.yml) starts PostgreSQL, the backend API, the Temporal worker, and the frontend with health checks.
+- [Dockerfile.frontend](Dockerfile.frontend) builds the Next.js app in standalone mode.
+- [backend/Dockerfile](backend/Dockerfile) builds a reusable FastAPI/worker image.
+- [docker-compose.production.yml](docker-compose.production.yml) starts PostgreSQL, the backend API, the Temporal worker, and the frontend with health checks.
 
 Important production assumption:
 
@@ -183,11 +183,11 @@ The clean Railway setup for this repo is:
 - one Railway PostgreSQL service
 - Temporal Cloud or another existing Temporal deployment for orchestration
 
-Use the Railway service config files in [`railway/README.md`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/railway/README.md):
+Use the Railway service config files in [`railway/README.md`](railway/README.md):
 
-- [`railway/frontend.json`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/railway/frontend.json)
-- [`railway/api.json`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/railway/api.json)
-- [`railway/worker.json`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/railway/worker.json)
+- [`railway/frontend.json`](railway/frontend.json)
+- [`railway/api.json`](railway/api.json)
+- [`railway/worker.json`](railway/worker.json)
 
 Important notes:
 
@@ -200,7 +200,7 @@ Railway flow:
 1. Push the repo to GitHub.
 2. Create a Railway project and add a PostgreSQL service.
 3. Add `frontend`, `api`, and `worker` services from the same GitHub repo.
-4. Set each service's Railway config file path as documented in [`railway/README.md`](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/railway/README.md).
+4. Set each service's Railway config file path as documented in [`railway/README.md`](railway/README.md).
 5. Generate public domains for the `frontend` and `api` services.
 6. Add the required service variables, especially `DATABASE_URL=${{Postgres.DATABASE_URL}}`, `DATABASE_SSL=true`, and `BACKEND_API_URL=https://${{api.RAILWAY_PUBLIC_DOMAIN}}` on the frontend service.
 7. Deploy the staged changes and confirm the frontend `/api/health/live` endpoint, the frontend `/api/health` diagnostic endpoint, and the backend `/health/ready` endpoint report healthy.
@@ -229,12 +229,12 @@ Railway flow:
 
 ## Architecture
 
-See [docs/architecture.md](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/docs/architecture.md).
+See [docs/architecture.md](docs/architecture.md).
 
 ## Requirement Mapping
 
-See [docs/spec-checklist.md](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/docs/spec-checklist.md) for a requirement-by-requirement implementation checklist.
+See [docs/spec-checklist.md](docs/spec-checklist.md) for a requirement-by-requirement implementation checklist.
 
 ## Walkthrough Video Script
 
-See [docs/walkthrough-script.md](/Users/raiyaan/Desktop/Padhai%20Likhai/Torq%20Flows/docs/walkthrough-script.md) for a concise recording script that covers the required demo flow.
+See [docs/walkthrough-script.md](docs/walkthrough-script.md) for a concise recording script that covers the required demo flow.
